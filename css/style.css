@@ -1,0 +1,24 @@
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+li {
+    display: inline;
+}
+
+video {
+    left:0;
+    top:0;
+    margin: 0px;
+    padding: 0px;
+    position: relative;
+}
+
+canvas {
+    left:0;
+    top:0;
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+}
