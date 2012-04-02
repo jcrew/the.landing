@@ -3,7 +3,7 @@
  *  FILE    : timeline.js
  *  AUTHOR  : JAEYOON LEE (lee@jaeyoon.org)
  *  DATE    : 30th March 2012
- *  VERSION : 0.1
+ *  VERSION : 0.2
  *  DESC    : Simple video scene timeline contoller
  **/
 
@@ -16,6 +16,7 @@ function timeline() {
     this.video = null;  
     this.videoWidth = null;
     this.videoHeight = null;
+    this.videoDuration = null;
     this.canvas = null;
     this.timelineHeightRatio = null;
     this.fps = null; 
@@ -26,10 +27,13 @@ function timeline() {
     this.counter = null;
     this.playButton = null;
     this.pauseButton = null;
+    this.keyCode = null;
+    this.startPosition = null;
+    this.timelineLength = null;
 }
 
 timeline.prototype.init = function(src, type, scene, color) {
-    this.videoWidth = 500; //window.innerWidth;
+    this.videoWidth = window.innerWidth;
     this.videoHeight = 0;
     this.status = "INIT";
     this.timelineHeightRatio = 0.2;  
@@ -42,7 +46,6 @@ timeline.prototype.init = function(src, type, scene, color) {
     
     // init function calls
     this.initVideo();
-    this.setPlayButton();
 }
 
 timeline.prototype.start = function() {
@@ -51,7 +54,7 @@ timeline.prototype.start = function() {
     // After video is loaded, get/set video height,
     // and create canvas based on video w/h
     this.video.addEventListener('loadeddata', function() {
-        that.setVideoHeight();
+        that.setVideoProps();
         that.initCanvas();
         var interval = setInterval(function() {that.loop();}, that.fps);
     }, false);
@@ -88,9 +91,18 @@ timeline.prototype.initCanvas = function() {
     this.context = this.canvas.getContext("2d");
 }
 
-timeline.prototype.setVideoHeight = function() {
-     this.videoHeight = this.videoWidth * this.video.videoHeight / this.video.videoWidth;
-     console.log(this.videoHeight);
+timeline.prototype.setVideoProps = function() {
+    this.videoHeight = this.videoWidth * this.video.videoHeight / this.video.videoWidth;
+    this.videDuration = this.video.duration;
+    
+    this.startPosition = this.videoWidth * 0.1;
+    this.timelineLength = this.videoWidth - (this.videoWidth * 0.2);
+        
+    for (var i=0; i<this.scene.length; i++) {
+        
+        this.scene[i].dotX = this.startPosition + (this.timelineLength * this.scene[i].start / this.video.duration);
+        this.scene[i].dotY = this.videoHeight * 0.95;
+    }
 }
 
 timeline.prototype.play = function() {
@@ -100,7 +112,7 @@ timeline.prototype.play = function() {
     
 timeline.prototype.pause = function() {
     this.video.pause();
-    this.setStatus("STOPPED");
+    this.setStatus("PAUSE");
 }
     
 timeline.prototype.setStatus = function(status) {
@@ -115,14 +127,41 @@ timeline.prototype.checkStatus = function(status) {
 }
 
 timeline.prototype.scenePause = function() {
-    if (this.video.currentTime > this.scene[this.counter+1].start) {
+    if (this.video.currentTime >= this.video.duration) {
         this.pause();
+    }
+    else {
+        if (this.scene.length > this.counter) {
+            if (this.video.currentTime > this.scene[this.counter+1].start) {
+                this.pause();
+            }
+        }    
     }
 }
 
-timeline.prototype.setPlayButton = function() {
-    var that = this;
+timeline.prototype.loop = function() {
+    this.draw(this.context);
     
+    switch (this.status) {
+        case "INIT":
+            // start video
+            this.play();
+            break;
+            
+        case "PLAYING":
+            // pause per each scene
+            this.scenePause();
+            break;
+            
+        case "PAUSE":
+            this.setButton();
+            break; 
+        default:
+    }
+}
+
+timeline.prototype.setButton = function() {
+    var that = this;
     // video play button event listener
     this.playButton = document.getElementById('play');
     this.playButton.addEventListener('click', function() {
@@ -137,42 +176,55 @@ timeline.prototype.draw = function(context) {
     context.save();
     context.clearRect(0, 0, this.videoWidth, this.videoHeight);
     context.restore();
-    this.debug(context);
-}
-
-timeline.prototype.loop = function() {
-    this.draw(this.context);
-    this.test();
     
-    switch (this.status) {
-        case "INIT":
-            // start video
-            this.play();
-            break;
-            
-        case "PLAYING":
-            // pause per each scene
-            this.scenePause();
-            break;
-            
-        case "PAUSE":
-            this.setPlayButton();
-            break; 
-        default:
-    }
+    // Some nasty drawings for demo
+    this.drawBox(context);
+    this.drawTime(context);
+    this.drawBar(context);
+    this.drawDot(context);
 }
 
-timeline.prototype.debug = function(context) {
-    context.fillStyle = "#74DFF1";
-    context.font = "24px normal sans-serif";
+timeline.prototype.drawBox = function(context) {
+    context.fillStyle = this.color.box;
+    context.fillRect(0, this.videoHeight * 0.9, this.videoWidth, this.videoHeight * 0.1);
+}
+
+timeline.prototype.drawBar = function(context) {
+    var marginX = this.videoWidth * 0.1;
+    var posX = marginX;
+    var posY = this.videoHeight * 0.95;
+    var w = this.videoWidth - (marginX* 2);
+    var h = 2;
+    context.fillStyle = this.color.bar;
+    context.fillRect(marginX, posY, w, h);
+    context.fillStyle = this.color.timeBar;
+    context.fillRect(marginX, posY, w * this.video.currentTime / this.video.duration, h);
+}
+
+// TODO: Convert sec to hh:mm:ss format
+//       Need to adjust font size based on videoWidth
+timeline.prototype.drawTime = function(context) {
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillStyle = this.color.font;
+    context.font = "18px normal sans-serif";
     var videoTime = this.video.currentTime.toString().substr(0, 6);
-    //videoTime.toString();
-    //videoTime = videoTime.substr(0,5);
-    context.fillText(videoTime, 20, 20);
+    context.fillText(videoTime, this.videoWidth * 0.95, this.videoHeight * 0.95);
 }
 
-timeline.prototype.test = function() {
-    if (this.video.currentTime > this.scene[this.counter].start && this.video.currentTime < this.scene[this.counter+1].start) {
-        document.getElementById(this.scene[this.counter].id).style.color = "green";
+timeline.prototype.drawDot = function(context) {
+    for (var i=0; i<this.scene.length; i++) {
+        context.beginPath();
+        if (this.video.currentTime > this.scene[i].start) {
+            context.fillStyle = this.color.timeBar;
+        }
+        else {
+            context.fillStyle = this.color.dot;
+        }
+        // centerX, centerY, radius, startingAngle, endingAngle, antiClockwise
+        context.arc(this.scene[i].dotX, this.scene[i].dotY + 1, this.scene[i].dotSize, 0, 2*Math.PI, false);
+        context.fill();  
+        context.closePath();
     }
+    context.restore();
 }
