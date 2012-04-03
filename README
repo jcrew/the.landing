@@ -1,0 +1,14 @@
+# VERSION HISTORY
+
+0.3 timeline navigating via mouse click event w/ coordination based on pre-set of scenes
+    Support fallback with predefined video formats to support multi browsers
+    tested from Opera 11.62 (Build 1347)
+                Safari 5.1.4 (7534.54.16)
+                Chrome 18.0.1025.142
+                Firefox 11.0
+
+0.2 initial functioning implementation w/ sample timeline UI
+    tested from Safari 5.1.4 (7534.54.16)
+
+0.1 initial structural implementation
+    tested from Safari 5.1.4 (7534.54.16) to verify video/mp4 format
