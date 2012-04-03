@@ -3,7 +3,7 @@
  *  FILE    : timeline.js
  *  AUTHOR  : JAEYOON LEE (lee@jaeyoon.org)
  *  DATE    : 30th March 2012
- *  VERSION : 0.2
+ *  VERSION : 0.3
  *  DESC    : Simple video scene timeline contoller
  **/
 
@@ -23,7 +23,6 @@ function timeline() {
     this.color = null;
     this.scene = null;
     this.src = null;
-    this.type = null;
     this.counter = null;
     this.playButton = null;
     this.pauseButton = null;
@@ -55,6 +54,7 @@ timeline.prototype.start = function() {
     this.video.addEventListener('loadeddata', function() {
         that.setVideoProps();
         that.initCanvas();
+        that.setDotButton();
         var interval = setInterval(function() {that.loop();}, that.fps);
     }, false);
 }
@@ -141,12 +141,12 @@ timeline.prototype.scenePause = function() {
         this.pause();
     }
     else {
-        if (this.scene.length > this.counter) {
+        if ((this.scene.length > this.counter) && (this.scene[this.counter+1] != null)) {
             if (this.video.currentTime > this.scene[this.counter+1].start) {
                 console.log("PAUSE: " + this.scene[this.counter+1].start); 
                 this.pause();
             }
-        }    
+        }
     }
 }
 
@@ -165,21 +165,28 @@ timeline.prototype.loop = function() {
             break;
             
         case "PAUSE":
-            this.setButton();
             break; 
         default:
     }
 }
 
-timeline.prototype.setButton = function() {
+timeline.prototype.setDotButton = function() {
     var that = this;
-    // video play button event listener
-    this.playButton = document.getElementById('play');
-    this.playButton.addEventListener('click', function() {
-        if(that.checkStatus("PAUSE")) {
-            that.counter++;
-            that.play();
-        }
+    this.canvas.addEventListener('mousemove', function(e) {
+        if (!e) var e = window.event;
+        
+        that.canvas.onclick = function() {
+            for (var i=0; i<that.scene.length; i++) {
+                if ((that.scene[i].dotX - 10) < e.pageX && (that.scene[i].dotX + 10) > e.pageX) {
+                    if((that.scene[i].dotY - 10) < e.pageY && (that.scene[i].dotY + 10) > e.pageY) {
+                        console.log("MOUSE: Clicked on :" + e.pageX + " / " + e.pageY + " for scene.id->" + that.scene[i].id);
+                        that.video.currentTime = that.scene[i].start;
+                        that.counter = that.scene[i].id; 
+                        that.play(); 
+                    }
+                }
+            }
+        };
     }, false);
 }
 
@@ -237,5 +244,4 @@ timeline.prototype.drawDot = function(context) {
         context.fill();  
         context.closePath();
     }
-    context.restore();
 }

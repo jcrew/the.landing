@@ -3,7 +3,7 @@
  *  FILE    : main.js
  *  AUTHOR  : JAEYOON LEE (lee@jaeyoon.org)
  *  DATE    : 30th March 2012
- *  VERSION : 0.2
+ *  VERSION : 0.3
  *  DESC    : Main() that calls timeline object
  **/
 
@@ -11,13 +11,13 @@ document.addEventListener('DOMContentLoaded', function(){
     var landing = new timeline();
         
     var scene = [
-        { start : 0.0, dotSize : 3, dotX : 0, dotY : 0 },
-        { start : 35.0, dotSize : 4, dotX : 0, dotY : 0 },
-        { start : 63.0, dotSize : 3, dotX : 0, dotY : 0 },
-        { start : 91.0, dotSize : 5, dotX : 0, dotY : 0 },
-        { start : 119.0, dotSize : 3, dotX : 0, dotY : 0 },
-        { start : 145.0, dotSize : 4, dotX : 0, dotY : 0 },
-        { start : 191.0, dotSize : 3, dotX : 0, dotY : 0 }
+        { id: 0, start : 0.0, dotSize : 3, dotX : 0, dotY : 0 },
+        { id: 1, start : 35.0, dotSize : 4, dotX : 0, dotY : 0 },
+        { id: 2, start : 63.0, dotSize : 3, dotX : 0, dotY : 0 },
+        { id: 3, start : 91.0, dotSize : 5, dotX : 0, dotY : 0 },
+        { id: 4, start : 119.0, dotSize : 3, dotX : 0, dotY : 0 },
+        { id: 5, start : 145.0, dotSize : 4, dotX : 0, dotY : 0 },
+        { id: 6, start : 191.0, dotSize : 3, dotX : 0, dotY : 0 }
     ];
     
     var color = {
