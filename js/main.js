@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function(){
         { start : 91.0, dotSize : 5, dotX : 0, dotY : 0 },
         { start : 119.0, dotSize : 3, dotX : 0, dotY : 0 },
         { start : 145.0, dotSize : 4, dotX : 0, dotY : 0 },
-        { start : 192.0, dotSize : 3, dotX : 0, dotY : 0 }
+        { start : 191.0, dotSize : 3, dotX : 0, dotY : 0 }
     ];
     
     var color = {
@@ -27,7 +27,12 @@ document.addEventListener('DOMContentLoaded', function(){
         font    : "rgb(255, 255, 255)", 
         dot     : "rgb(255, 255, 255)"
     };
+    
+    var video = [
+        { file  : "./res/Green_together.mp4", type : "video/mp4"},
+        { file  : "./res/Green_together.ogv", type : "video/ogg"}
+    ]
 
-    landing.init("./res/Green_together.mp4", "video/mp4", scene, color);
-    landing.start();    
+    landing.init(video, scene, color);
+    landing.start();
 }, false);

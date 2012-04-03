@@ -32,7 +32,7 @@ function timeline() {
     this.timelineLength = null;
 }
 
-timeline.prototype.init = function(src, type, scene, color) {
+timeline.prototype.init = function(src, scene, color) {
     this.videoWidth = window.innerWidth;
     this.videoHeight = 0;
     this.status = "INIT";
@@ -41,7 +41,6 @@ timeline.prototype.init = function(src, type, scene, color) {
     this.color = color;
     this.scene = scene;
     this.src = src;
-    this.type = type;
     this.counter = 0;
     
     // init function calls
@@ -60,7 +59,7 @@ timeline.prototype.start = function() {
     }, false);
 }
 
-timeline.prototype.initVideo = function(src) {
+timeline.prototype.initVideo = function() {
     // create video element
     var video = document.createElement('video');
     video.setAttribute('width', this.videoWidth);
@@ -68,8 +67,18 @@ timeline.prototype.initVideo = function(src) {
     document.getElementById('main').appendChild(video);
 
     // Video source control
-    video.src = this.src;
-    video.type = this.type;
+    for (var i=0; i<this.src.length; i++) {
+        if (video.canPlayType(this.src[i].type)) {
+            video.src = this.src[i].file;
+            video.type = this.src[i].type;
+        }
+        else {
+            console.log("DEBUG: Unable to play current video type: " + this.src[i].type);
+        }
+    }
+    
+    console.log("LOAD: video.src: " + video.src + ", video.type: " + video.type);
+    
     video.control = "";
     
     // Grab video context
@@ -128,11 +137,13 @@ timeline.prototype.checkStatus = function(status) {
 
 timeline.prototype.scenePause = function() {
     if (this.video.currentTime >= this.video.duration) {
+        console.log("PAUSE, END: " + this.video.duration);
         this.pause();
     }
     else {
         if (this.scene.length > this.counter) {
             if (this.video.currentTime > this.scene[this.counter+1].start) {
+                console.log("PAUSE: " + this.scene[this.counter+1].start); 
                 this.pause();
             }
         }    
